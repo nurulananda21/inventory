@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return 'Laravel berjalan';
+Route::post('/items', function () {
+    return [
+        'status' => 'success'
+    ];
 });
