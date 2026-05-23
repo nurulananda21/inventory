@@ -2,9 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/hello', function () {
-    return response()->json([
-        'message' => 'Hello Ananda',
-        'status' => 'Sukses'
-    ], 200);
+Route::post('/items', function () {
+        'status' => 'success'
+    ]);
 });
