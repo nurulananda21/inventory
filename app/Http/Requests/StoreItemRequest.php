@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateItemRequest extends FormRequest
+class StoreItemRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,18 +14,19 @@ class UpdateItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|required|string|max:255',
-            'quantity' => 'sometimes|required|integer|min:0',
-            'price' => 'sometimes|required|numeric|min:0',
-            'category_id' => 'sometimes|required|exists:categories,id',
+            'name' => 'required|string|max:255',
+            'quantity' => 'required|integer|min:0',
+            'price' => 'required|numeric|min:0',
+            'category_id' => 'required|exists:categories,id',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'name.required' => 'Nama item wajib diisi jika kolom ini dikirim.',
+            'name.required' => 'Nama item wajib diisi.',
             'quantity.integer' => 'Jumlah harus berupa angka bulat.',
+            'quantity.min' => 'Jumlah minimal 0.',
             'price.numeric' => 'Harga harus berupa angka.',
             'category_id.exists' => 'Kategori tidak ditemukan.',
         ];
