@@ -2,118 +2,134 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Item;
-use Validator;
+use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ItemController extends Controller
 {
-    // GET semua data
+    // GET ALL ITEMS
     public function index()
     {
-        $items = Item::all();
-
         return response()->json([
             'status' => 'success',
-            'data' => $items
-        ]);
+            'data' => Item::all()
+        ], 200);
     }
 
-    // GET berdasarkan ID
-    public function show($id)
-    {
-        $item = Item::find($id);
-
-        if (!$item) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Data tidak ditemukan'
-            ], 404);
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $item
-        ]);
-    }
-
-    // POST tambah data
+    // CREATE ITEM
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'quantity' => 'required|integer|min:0',
-            'price' => 'required|numeric',
-            'category_id' => 'required'
-        ], [
-            'name.required' => 'Nama item wajib diisi.',
-            'quantity.min' => 'Jumlah minimal 0.'
-        ]);
+        try {
 
-        if ($validator->fails()) {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'quantity' => 'required|integer|min:1',
+                'price' => 'required|numeric|min:0',
+                'category_id' => 'required|integer'
+            ]);
+
+            $item = Item::create($validated);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Item created successfully',
+                'data' => $item
+            ], 201);
+
+        } catch (\Exception $e) {
+
             return response()->json([
                 'status' => 'error',
-                'errors' => $validator->errors()
-            ], 422);
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        $item = Item::create([
-            'name' => $request->name,
-            'quantity' => $request->quantity,
-            'price' => $request->price,
-            'category_id' => $request->category_id
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Data berhasil ditambahkan',
-            'data' => $item
-        ]);
     }
 
-    // PUT update data
+    // GET ITEM BY ID
+    public function show($id)
+    {
+        try {
+
+            $item = Item::findOrFail($id);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $item
+            ], 200);
+
+        } catch (ModelNotFoundException $e) {
+
+            return response()->json([
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 404);
+        }
+    }
+
+    // UPDATE ITEM
     public function update(Request $request, $id)
     {
-        $item = Item::find($id);
+        try {
 
-        if (!$item) {
+            $item = Item::findOrFail($id);
+
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'quantity' => 'required|integer|min:1',
+                'price' => 'required|numeric|min:0',
+                'category_id' => 'required|integer'
+            ]);
+
+            $item->update($validated);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Item updated successfully',
+                'data' => $item
+            ], 200);
+
+        } catch (ModelNotFoundException $e) {
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Data tidak ditemukan'
+                'data' => null,
+                'message' => $e->getMessage()
             ], 404);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        $item->update([
-            'name' => $request->name,
-            'quantity' => $request->quantity,
-            'price' => $request->price,
-            'category_id' => $request->category_id
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Data berhasil diupdate',
-            'data' => $item
-        ]);
     }
 
-    // DELETE data
+    // DELETE ITEM
     public function destroy($id)
     {
-        $item = Item::find($id);
+        try {
 
-        if (!$item) {
+            $item = Item::findOrFail($id);
+
+            $item->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Item deleted successfully'
+            ], 200);
+
+        } catch (ModelNotFoundException $e) {
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'Data tidak ditemukan'
+                'data' => null,
+                'message' => $e->getMessage()
             ], 404);
         }
-
-        $item->delete();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Data berhasil dihapus'
-        ]);
     }
 }
