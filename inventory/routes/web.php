@@ -2,8 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::post('/items', function () {
-    return [
-        'status' => 'success'
-    ];
+Route::get('/', function () {
+    return view('welcome');
 });
