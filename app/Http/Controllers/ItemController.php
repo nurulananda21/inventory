@@ -2,76 +2,118 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreItemRequest;
-use App\Http\Requests\UpdateItemRequest;
-use App\Services\ItemService;
-use Exception;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use App\Models\Item;
+use Validator;
 
 class ItemController extends Controller
 {
-    protected ItemService $svc;
-
-    // Inject ItemService melalui Constructor
-    public function __construct(ItemService $svc)
+    // GET semua data
+    public function index()
     {
-        $this->svc = $svc;
-    }
+        $items = Item::all();
 
-    public function index(): JsonResponse
-    {
         return response()->json([
             'status' => 'success',
-            'data' => $this->svc->all(),
-            'message' => 'Berhasil menarik semua data Item'
+            'data' => $items
         ]);
     }
 
-    public function store(StoreItemRequest $req): JsonResponse
+    // GET berdasarkan ID
+    public function show($id)
     {
-        $item = $this->svc->create($req->validated());
-        return response()->json([
-            'status' => 'success',
-            'data' => $item,
-            'message' => 'Item berhasil dibuat'
-        ], 201);
-    }
+        $item = Item::find($id);
 
-    public function show($id): JsonResponse
-    {
-        try {
-            $item = $this->svc->find($id);
-            return response()->json([
-                'status' => 'success',
-                'data' => $item,
-                'message' => 'Berhasil menarik satu data Item'
-            ]);
-        } catch (Exception $e) {
+        if (!$item) {
             return response()->json([
                 'status' => 'error',
-                'data' => null,
-                'message' => $e->getMessage()
+                'message' => 'Data tidak ditemukan'
             ], 404);
         }
-    }
 
-    public function update(UpdateItemRequest $req, $id): JsonResponse
-    {
-        $item = $this->svc->update($id, $req->validated());
         return response()->json([
             'status' => 'success',
-            'data' => $item,
-            'message' => 'Item berhasil diperbarui'
+            'data' => $item
         ]);
     }
 
-    public function destroy($id): JsonResponse
+    // POST tambah data
+    public function store(Request $request)
     {
-        $this->svc->delete($id);
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'quantity' => 'required|integer|min:0',
+            'price' => 'required|numeric',
+            'category_id' => 'required'
+        ], [
+            'name.required' => 'Nama item wajib diisi.',
+            'quantity.min' => 'Jumlah minimal 0.'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $item = Item::create([
+            'name' => $request->name,
+            'quantity' => $request->quantity,
+            'price' => $request->price,
+            'category_id' => $request->category_id
+        ]);
+
         return response()->json([
             'status' => 'success',
-            'data' => null,
-            'message' => 'Item berhasil dihapus'
+            'message' => 'Data berhasil ditambahkan',
+            'data' => $item
+        ]);
+    }
+
+    // PUT update data
+    public function update(Request $request, $id)
+    {
+        $item = Item::find($id);
+
+        if (!$item) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
+
+        $item->update([
+            'name' => $request->name,
+            'quantity' => $request->quantity,
+            'price' => $request->price,
+            'category_id' => $request->category_id
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data berhasil diupdate',
+            'data' => $item
+        ]);
+    }
+
+    // DELETE data
+    public function destroy($id)
+    {
+        $item = Item::find($id);
+
+        if (!$item) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
+
+        $item->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data berhasil dihapus'
         ]);
     }
 }
