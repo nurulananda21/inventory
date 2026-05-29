@@ -8,7 +8,7 @@ class StoreItemRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // Ubah menjadi true agar request diizinkan
+        return true;
     }
 
     public function rules(): array
@@ -24,12 +24,7 @@ class StoreItemRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Nama item wajib diisi.',
-            'quantity.integer' => 'Jumlah harus berupa angka bulat.',
-            'quantity.min' => 'Jumlah minimal adalah 0.',
-            'price.numeric' => 'Harga harus berupa angka.',
-            'price.min' => 'Harga minimal adalah 0.',
-            'category_id.exists' => 'Kategori tidak ditemukan.',
+            'quantity.min' => 'Jumlah tidak boleh kurang dari 0.',
         ];
     }
 }
