@@ -30,6 +30,7 @@ class ItemController extends Controller
     public function store(StoreItemRequest $req): JsonResponse
     {
         $item = $this->svc->create($req->validated());
+
         return response()->json([
             'status' => 'success',
             'data' => $item,
@@ -41,6 +42,7 @@ class ItemController extends Controller
     {
         try {
             $item = $this->svc->find($id);
+
             return response()->json([
                 'status' => 'success',
                 'data' => $item,
@@ -58,6 +60,7 @@ class ItemController extends Controller
     public function update(UpdateItemRequest $req, $id): JsonResponse
     {
         $item = $this->svc->update($id, $req->validated());
+
         return response()->json([
             'status' => 'success',
             'data' => $item,
@@ -65,13 +68,10 @@ class ItemController extends Controller
         ]);
     }
 
-    public function destroy($id): JsonResponse
+    public function destroy($id)
     {
         $this->svc->delete($id);
-        return response()->json([
-            'status' => 'success',
-            'data' => null,
-            'message' => 'Item berhasil dihapus'
-        ]);
+
+        return response()->noContent(); // 204 No Content
     }
 }
