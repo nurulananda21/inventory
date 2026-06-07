@@ -6,26 +6,37 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCategoryRequest extends FormRequest
 {
-    public function authorize(): bool
+    public function authorize()
     {
         return true;
     }
 
-    public function rules(): array
+    protected function prepareForValidation()
     {
-        // Mendapatkan ID Kategori dari rute URL agar validasi 'unique' mengabaikan ID kategori ini sendiri
-        $id = $this->route('category')?->id ?? $this->route('category');
+        $input = $this->all();
 
+        array_walk($input, function (&$val) {
+            if (is_string($val)) {
+                $val = trim(strip_tags($val));
+            }
+        });
+
+        $this->merge($input);
+    }
+
+    public function rules()
+    {
         return [
-            'name' => "required|string|unique:categories,name,{$id}|max:255",
+            "name" => "sometimes|required|string|max:255",
         ];
     }
 
-    public function messages(): array
+    public function messages()
     {
         return [
-            'name.required' => 'Nama kategori wajib diisi.',
-            'name.unique' => 'Nama kategori sudah digunakan.',
+            "name.required" => "Nama kategori wajib diisi.",
+            "name.string" => "Nama kategori harus berupa teks.",
+            "name.max" => "Nama kategori maksimal 255 karakter.",
         ];
     }
 }

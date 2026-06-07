@@ -6,28 +6,44 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateItemRequest extends FormRequest
 {
-    public function authorize(): bool
+    public function authorize()
     {
         return true;
     }
 
-    public function rules(): array
+    protected function prepareForValidation()
+    {
+        $input = $this->all();
+
+        array_walk($input, function (&$val) {
+            if (is_string($val)) {
+                $val = trim(strip_tags($val));
+            }
+        });
+
+        $this->merge($input);
+    }
+
+    public function rules()
     {
         return [
-            'name' => 'sometimes|required|string|max:255',
-            'quantity' => 'sometimes|required|integer|min:0',
-            'price' => 'sometimes|required|numeric|min:0',
-            'category_id' => 'sometimes|required|exists:categories,id',
+            "name" => "sometimes|required|string|max:255",
+            "quantity" => "sometimes|required|integer|min:0",
+            "price" => "sometimes|required|numeric|min:0",
+            "category_id" => "sometimes|required|exists:categories,id",
         ];
     }
 
-    public function messages(): array
+    public function messages()
     {
         return [
-            'name.required' => 'Nama item wajib diisi jika kolom ini dikirim.',
-            'quantity.integer' => 'Jumlah harus berupa angka bulat.',
-            'price.numeric' => 'Harga harus berupa angka.',
-            'category_id.exists' => 'Kategori tidak ditemukan.',
+            "name.required" => "Nama item wajib diisi.",
+            "quantity.required" => "Jumlah item wajib diisi.",
+            "quantity.integer" => "Jumlah item harus berupa angka.",
+            "price.required" => "Harga item wajib diisi.",
+            "price.numeric" => "Harga item harus berupa angka.",
+            "category_id.required" => "Kategori wajib dipilih.",
+            "category_id.exists" => "Kategori tidak ditemukan.",
         ];
     }
 }
