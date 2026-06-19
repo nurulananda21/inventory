@@ -21,3 +21,7 @@ Base URL: http://localhost:8000/api/v1
 
 ### GET /api/v1/items?category_id={id}
 Description: Filter items by category, optional.
+
+// Pengujian draf PR baru untuk simulasi tugas code review
+// Tolong tambahkan contoh response data atau keterangan query parameter yang lebih jelas di dokumentasi ini agar tim frontend tidak bingung.
+
