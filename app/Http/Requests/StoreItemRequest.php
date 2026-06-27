@@ -28,7 +28,7 @@ class StoreItemRequest extends FormRequest
     {
         return [
             "name" => "required|string|max:255",
-            "quantity" => "required|integer|min:0",
+            "stock" => "required|integer|min:0",
             "price" => "required|numeric|min:0",
             "category_id" => "required|exists:categories,id",
         ];
@@ -38,8 +38,8 @@ class StoreItemRequest extends FormRequest
     {
         return [
             "name.required" => "Nama item wajib diisi.",
-            "quantity.required" => "Jumlah item wajib diisi.",
-            "quantity.integer" => "Jumlah item harus berupa angka.",
+            "stock.required" => "Stok item wajib diisi.",
+            "stock.integer" => "Stok item harus berupa angka.",
             "price.required" => "Harga item wajib diisi.",
             "price.numeric" => "Harga item harus berupa angka.",
             "category_id.required" => "Kategori wajib dipilih.",
